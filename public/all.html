@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- leaflet.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+    crossorigin=""/>
+
+     <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+     crossorigin=""></script>
+
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <style>
+        body {
+        background-color: #525252;
+        color: white;
+        font-family: sans-serif;
+        }
+
+
+        /* leaflet.js */
+        #map { 
+            
+            height: 350px;
+         }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <a style='color:rgb(231, 231, 231);' href="index.html">post</a>
+    <a style='color:rgb(231, 231, 231);' href="#map">map</a>
+    <hr>
+    <h1>hello this is all the database</h1>
+    <button id="getBtnEl"onclick="getData()">Get all</button>
+    <div id="allApi"></div>
+    <div id="map"></div>
+    <script>
+        
+    /* leafle.js */
+    var map = L.map('map').setView([0, 0], 2);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+        let getBtnEl = document.getElementById('getBtnEl')
+        async function getData() {
+            getBtnEl.disabled = true
+            const response = await fetch("/api")
+            const data = await response.json() 
+            console.log(data)
+            for (let item = 0; item < data.length; item++) {
+                document.getElementById("allApi").innerHTML += `
+                <p><b>${Number(item) + 1} - latitude :</b>  ${data[item].lat}</p>
+                `
+                document.getElementById("allApi").innerHTML += `
+                <p> <b> longitude :</b> ${data[item].lon}</p>
+                `
+                document.getElementById("allApi").innerHTML += `
+                <p> <b> mood :</b> ${data[item].mood}</p>
+                `
+                document.getElementById("allApi").innerHTML += `
+                <p> <b> tempreture :</b> ${data[item].temp} c°</p>
+                `
+                document.getElementById("allApi").innerHTML += `
+                <p> <b> time :</b> ${new Date(data[item].getTime).toLocaleString()}</p>
+                `
+                document.getElementById("allApi").innerHTML += `
+                <p> <b> image :</b> <br> <img src="${data[item].image64}" alt="image"></img></p>
+                <hr>
+                `
+                var marker = L.marker([data[item].lat, data[item].lon]).addTo(map);
+                marker.bindPopup(`
+                <b>Time :</b> ${new Date(data[item].getTime).toLocaleString()} <br>
+                <b>Tempreture :</b> ${data[item].temp} <br>
+                <b>Mood :</b> ${data[item].mood} <br>
+                <b>Picture :</b> <br> <img style='width: 150px;' src="${data[item].image64}" alt="image"></img> <br>
+
+                `).openPopup();
+        }
+    }
+
+
+</script>
+</body>
+</html> 

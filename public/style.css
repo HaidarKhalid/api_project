@@ -1,0 +1,9 @@
+body {
+    background-color: #525252;
+    color: white;
+    font-family: sans-serif;
+}
+
+
+/* leaflet.js */
+#map { height: 180px; }

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/p5.min.js" integrity="sha512-P/Je1zlTfRugG4aRZRx9hYRVph2CkbpchkgP6ub1gNF/VNHDUNq0/WOY0CSLMmwEXxrQ7HohFmMenWGpx8ZzvQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/addons/p5.dom.js" integrity="sha512-on+Vjx6pkQ27deEPRDWBzaT7qKOG/tjLYq1Zm+1sL9/HL7jkVXOwEbZueZJFpZTQdguMIAp5D8Ewr9DLrvkmww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <a style='color:rgb(231, 231, 231);' href="all.html">All posts</a>
+    <hr>
+    <h2>longitude : <p style="display: inline-block;" id="longitude"></p></h2>
+    <h2>latitude : <p style="display: inline-block;" id="latitude"></p></h2>
+    <label for="mood">Mood :</label> <input type="text" name="mood" id="mood">
+    <p id="summary"></p>
+    <button id="submit">Post</button>
+
+
+    <script>
+        
+        function setup() {
+        noCanvas();
+        const video = createCapture(VIDEO)
+        video.size(320, 240)
+        let lat, lon, positionInfo;
+        const button = document.getElementById("submit");
+
+        button.addEventListener("click", async event => {
+            const mood = document.getElementById("mood").value;
+            let temp = positionInfo["current"]["temp_c"]
+            video.loadPixels()
+            const image64 = video.canvas.toDataURL()
+            const data = { lat, lon, mood, image64, temp};
+            const options = {
+                method: "POST",
+                headers: {
+                    "Content-Type": 'application/json'
+                },
+                body: JSON.stringify(data)
+            };
+            const response = await fetch("/api", options);
+            const json = await response.json();
+            console.log(json)
+        });
+
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(async position => {
+                lat = position.coords.latitude;
+                lon = position.coords.longitude;
+                let apiURL = `weather/${lat},${lon}`
+                const response = await fetch(apiURL);
+                positionInfo = await response.json()
+                document.getElementById('latitude').textContent = lat + ' °';
+                document.getElementById('longitude').textContent = lon + ' °';
+                document.getElementById("summary").innerHTML = `
+                weather in ${positionInfo['location']['name']} is ${positionInfo['current']['condition']['text']} with a tempreture of ${positionInfo['current']['temp_c']}c° <br>
+                `
+                console.log(positionInfo)
+            });
+        } else {
+            console.log("cant get your current position")
+        }
+        }
+
+    </script>
+      <!-- 
+      function setup() {
+  
+          let image64;
+              noCanvas()
+              const video = createCapture(VIDEO)
+              video.size(320, 240)
+              video.loadPixels()
+              image64 = video.canvas.toDataURL()
+          setup()
+          const favorAnimal = document.getElementById('favor-animal')
+          const favorFood = document.getElementById('favor-food')
+       if (favorAnimal.value.length >= 1 && favorFood.value.length >= 1) {
+              console.log('hi')
+                  const data = {favorFood: favorFood.value, favorAnimal: favorAnimal.value,
+                  image64 }
+                  const options = {
+                      method: "POST",
+                      headers: {
+                          'Content-type': 'application/json'
+                      },
+                      body: JSON.stringify(data)
+                  }
+                  const response = await fetch("/api",options);
+                  const json = await response.json()
+                  console.log(json)
+          }
+          else {alert("please insert the information")}
+          }  -->
+</body>
+</html>
+
+  
